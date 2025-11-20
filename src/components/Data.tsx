@@ -4,21 +4,22 @@ import PostsTable from './PostsTable';
 import LoadingIndicator from './LoadingIndicator';
 import ErrorDisplay from './ErrorDisplay';
 import InfiniteScrollTrigger from './InfiniteScrollTrigger';
+import { Post } from '../types';
 
-const Data = () => {
-  const [allData, setAllData] = useState([]); // Store all data for search
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMoreData, setHasMoreData] = useState(true);
-  const itemsPerPage = 10;
-  const searchTimeoutRef = useRef(null);
+const Data: React.FC = () => {
+  const [allData, setAllData] = useState<Post[]>([]); // Store all data for search
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [hasMoreData, setHasMoreData] = useState<boolean>(true);
+  const itemsPerPage: number = 10;
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch data from JSONPlaceholder API with pagination
-  const fetchData = useCallback(async (page = 1, append = false) => {
+  const fetchData = useCallback(async (page: number = 1, append: boolean = false): Promise<void> => {
     try {
       if (page === 1) {
         setLoading(true);
@@ -36,7 +37,7 @@ const Data = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const result = await response.json();
+      const result: Post[] = await response.json();
       
       // Check if we got less items than requested (means we're at the end)
       if (result.length < itemsPerPage) {
@@ -49,7 +50,7 @@ const Data = () => {
         setAllData(result);
       }
     } catch (err) {
-      const errorMessage = err.message || 'Failed to fetch data. Please try again later.';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch data. Please try again later.';
       setError(errorMessage);
       console.error('Error fetching data:', err);
       setHasMoreData(false);
@@ -82,7 +83,7 @@ const Data = () => {
   }, [searchTerm]);
 
   // Memoize filtered data - only recalculates when allData or debouncedSearchTerm changes
-  const filteredData = useMemo(() => {
+  const filteredData = useMemo<Post[]>(() => {
     if (debouncedSearchTerm.trim() === '') {
       return allData;
     }
@@ -101,7 +102,7 @@ const Data = () => {
   }, [fetchData]);
 
   // Load more data from API when scrolling to bottom
-  const loadMoreData = useCallback(() => {
+  const loadMoreData = useCallback((): void => {
     if (loadingMore || !hasMoreData) {
       return;
     }

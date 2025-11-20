@@ -1,6 +1,7 @@
 import React from 'react';
+import { LoadingIndicatorProps } from '../types';
 
-const LoadingIndicator = React.memo(({ message = 'Loading data...' }) => {
+const LoadingIndicator: React.FC<LoadingIndicatorProps> = React.memo(({ message = 'Loading data...' }) => {
   return (
     <div className="container-fluid p-4">
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div className="container-fluid p-4">
       <h1 className="mb-4">Welcome to Dashboard</h1>
