@@ -1,205 +1,149 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import SearchBar from './SearchBar';
+import PostsTable from './PostsTable';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorDisplay from './ErrorDisplay';
+import InfiniteScrollTrigger from './InfiniteScrollTrigger';
 
 const Data = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [allData, setAllData] = useState([]); // Store all data for search
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedItemsCount, setDisplayedItemsCount] = useState(10);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreData, setHasMoreData] = useState(true);
   const itemsPerPage = 10;
-  const observerTarget = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
-  // Fetch data from a public API (using JSONPlaceholder for users)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
+  // Fetch data from JSONPlaceholder API with pagination
+  const fetchData = useCallback(async (page = 1, append = false) => {
+    try {
+      if (page === 1) {
         setLoading(true);
-        setError(null);
-        const response = await fetch('https://jsonplaceholder.typicode.com/users');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        setData(result);
-        setFilteredData(result);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch data. Please try again later.');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
+      } else {
+        setLoadingMore(true);
+      }
+      setError(null);
+      
+      // JSONPlaceholder uses _page and _limit for pagination
+      const url = `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${itemsPerPage}`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Check if we got less items than requested (means we're at the end)
+      if (result.length < itemsPerPage) {
+        setHasMoreData(false);
+      }
+      
+      if (append) {
+        setAllData((prevData) => [...prevData, ...result]);
+      } else {
+        setAllData(result);
+      }
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to fetch data. Please try again later.';
+      setError(errorMessage);
+      console.error('Error fetching data:', err);
+      setHasMoreData(false);
+      
+      // Clear data on error if it's the first load
+      if (page === 1) {
+        setAllData([]);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [itemsPerPage]);
+
+  // Debounce search term
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms debounce
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
     };
+  }, [searchTerm]);
 
-    fetchData();
-  }, []);
-
-  // Filter data based on search term
-  useEffect(() => {
-    if (searchTerm === '') {
-      setFilteredData(data);
-    } else {
-      const filtered = data.filter((item) =>
-        Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-      setFilteredData(filtered);
+  // Memoize filtered data - only recalculates when allData or debouncedSearchTerm changes
+  const filteredData = useMemo(() => {
+    if (debouncedSearchTerm.trim() === '') {
+      return allData;
     }
-    setDisplayedItemsCount(itemsPerPage); // Reset displayed items when filtering
-  }, [searchTerm, data]);
+    return allData.filter((item) =>
+      Object.values(item).some((value) =>
+        String(value).toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      )
+    );
+  }, [allData, debouncedSearchTerm]);
 
-  // Load more items when scrolling
-  const loadMore = useCallback(() => {
-    if (loadingMore || displayedItemsCount >= filteredData.length) {
+  // Initial data fetch
+  useEffect(() => {
+    setCurrentPage(1);
+    setHasMoreData(true);
+    fetchData(1, false);
+  }, [fetchData]);
+
+  // Load more data from API when scrolling to bottom
+  const loadMoreData = useCallback(() => {
+    if (loadingMore || !hasMoreData) {
       return;
     }
     
-    setLoadingMore(true);
-    // Simulate a small delay for better UX
-    setTimeout(() => {
-      setDisplayedItemsCount((prev) => Math.min(prev + itemsPerPage, filteredData.length));
-      setLoadingMore(false);
-    }, 300);
-  }, [loadingMore, displayedItemsCount, filteredData.length]);
-
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && displayedItemsCount < filteredData.length) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [displayedItemsCount, filteredData.length, loadMore]);
-
-  // Get displayed items
-  const displayedItems = filteredData.slice(0, displayedItemsCount);
-  const hasMore = displayedItemsCount < filteredData.length;
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    fetchData(nextPage, true);
+  }, [loadingMore, hasMoreData, currentPage, fetchData]);
 
   if (loading) {
-    return (
-      <div className="container-fluid p-4">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <span className="ms-3">Loading data...</span>
-        </div>
-      </div>
-    );
+    return <LoadingIndicator message="Loading data..." />;
   }
 
   if (error) {
-    return (
-      <div className="container-fluid p-4">
-        <div className="alert alert-danger" role="alert">
-          <h4 className="alert-heading">Error!</h4>
-          <p>{error}</p>
-          <hr />
-          <p className="mb-0">
-            Please check your internet connection and try refreshing the page.
-          </p>
-        </div>
-      </div>
-    );
+    return <ErrorDisplay error={error} />;
   }
 
   return (
     <div className="container-fluid p-4">
-      <h1 className="mb-4">Data Table</h1>
+      <h1 className="mb-4">Posts</h1>
       
-      {/* Search/Filter Input */}
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by name, email, phone, or company..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <small className="form-text text-muted">
-          Showing {filteredData.length} of {data.length} results
-        </small>
-      </div>
+      <SearchBar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        totalResults={filteredData.length}
+        totalLoaded={allData.length}
+      />
 
-      {/* Table */}
-      <div className="table-responsive">
-        <table className="table table-striped table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Website</th>
-              <th>Company</th>
-              <th>City</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedItems.length > 0 ? (
-              displayedItems.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.username}</td>
-                  <td>{item.email}</td>
-                  <td>{item.phone}</td>
-                  <td>{item.website}</td>
-                  <td>{item.company?.name || 'N/A'}</td>
-                  <td>{item.address?.city || 'N/A'}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center">
-                  No data found matching your search criteria.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <PostsTable data={filteredData} searchTerm={debouncedSearchTerm} />
 
-      {/* Infinite Scroll Trigger and Loading Indicator */}
-      {hasMore && (
-        <div ref={observerTarget} className="text-center py-4">
-          {loadingMore ? (
-            <div className="d-flex justify-content-center align-items-center">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading more...</span>
-              </div>
-              <span className="ms-3">Loading more data...</span>
-            </div>
-          ) : (
-            <small className="text-muted">Scroll down to load more</small>
-          )}
-        </div>
-      )}
+      <InfiniteScrollTrigger
+        onLoadMore={loadMoreData}
+        hasMoreData={hasMoreData}
+        loadingMore={loadingMore}
+        loading={loading}
+      />
 
       {/* End of data indicator */}
-      {!hasMore && displayedItems.length > 0 && (
+      {!hasMoreData && filteredData.length > 0 && (
         <div className="text-center py-3">
           <small className="text-muted">
-            Showing all {displayedItems.length} of {filteredData.length} results
+            All data loaded. Showing {filteredData.length} result{filteredData.length !== 1 ? 's' : ''}
           </small>
         </div>
       )}
