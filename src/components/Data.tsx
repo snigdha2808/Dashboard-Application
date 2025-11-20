@@ -3,7 +3,6 @@ import SearchBar from './SearchBar';
 import PostsTable from './PostsTable';
 import LoadingIndicator from './LoadingIndicator';
 import ErrorDisplay from './ErrorDisplay';
-import InfiniteScrollTrigger from './InfiniteScrollTrigger';
 import { Post } from '../types';
 
 const Data: React.FC = () => {
