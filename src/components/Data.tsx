@@ -121,33 +121,28 @@ const Data: React.FC = () => {
   }
 
   return (
-    <div className="w-full p-6">
-      <h1 className="mb-6 text-3xl font-bold text-gray-800">Posts</h1>
+    <div className="w-full p-6 flex flex-col h-full">
+      <h1 className="mb-4 text-3xl font-bold text-gray-800 flex-shrink-0">Posts</h1>
       
-      <SearchBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        totalResults={filteredData.length}
-        totalLoaded={allData.length}
-      />
+      <div className="sticky top-0 z-20 bg-white pb-4 flex-shrink-0 -mx-6 px-6">
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          totalResults={filteredData.length}
+          totalLoaded={allData.length}
+        />
+      </div>
 
-      <PostsTable data={filteredData} searchTerm={debouncedSearchTerm} />
-
-      <InfiniteScrollTrigger
-        onLoadMore={loadMoreData}
-        hasMoreData={hasMoreData}
-        loadingMore={loadingMore}
-        loading={loading}
-      />
-
-      {/* End of data indicator */}
-      {!hasMoreData && filteredData.length > 0 && (
-        <div className="text-center py-4">
-          <small className="text-sm text-gray-500">
-            All data loaded. Showing {filteredData.length} result{filteredData.length !== 1 ? 's' : ''}
-          </small>
-        </div>
-      )}
+      <div className="flex-1 overflow-hidden min-h-0">
+        <PostsTable 
+          data={filteredData} 
+          searchTerm={debouncedSearchTerm}
+          onLoadMore={loadMoreData}
+          hasMoreData={hasMoreData}
+          loadingMore={loadingMore}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 };
