@@ -5,22 +5,26 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
 
   return (
-    <div className="col-md-3 col-lg-2 sidebar bg-dark text-white vh-100 position-fixed">
-      <div className="p-3">
-        <h4 className="mb-4">Dashboard</h4>
-        <nav className="nav flex-column">
+    <div className="w-full md:w-48 lg:w-56 bg-gray-900 text-white h-auto md:h-screen md:fixed md:left-0 md:top-0 z-10">
+      <div className="p-6">
+        <h4 className="mb-6 text-xl font-semibold">Dashboard</h4>
+        <nav className="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2">
           <Link
             to="/"
-            className={`nav-link text-white mb-2 ${
-              location.pathname === '/' ? 'active bg-primary rounded' : ''
+            className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+              location.pathname === '/' 
+                ? 'bg-blue-600 text-white font-medium' 
+                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
             }`}
           >
             Home
           </Link>
           <Link
             to="/data"
-            className={`nav-link text-white mb-2 ${
-              location.pathname === '/data' ? 'active bg-primary rounded' : ''
+            className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+              location.pathname === '/data' 
+                ? 'bg-blue-600 text-white font-medium' 
+                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
             }`}
           >
             Data
@@ -32,4 +36,3 @@ const Sidebar: React.FC = () => {
 };
 
 export default Sidebar;
-

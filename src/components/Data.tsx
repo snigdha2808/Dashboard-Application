@@ -121,8 +121,8 @@ const Data: React.FC = () => {
   }
 
   return (
-    <div className="container-fluid p-4">
-      <h1 className="mb-4">Posts</h1>
+    <div className="w-full p-6">
+      <h1 className="mb-6 text-3xl font-bold text-gray-800">Posts</h1>
       
       <SearchBar
         searchTerm={searchTerm}
@@ -142,8 +142,8 @@ const Data: React.FC = () => {
 
       {/* End of data indicator */}
       {!hasMoreData && filteredData.length > 0 && (
-        <div className="text-center py-3">
-          <small className="text-muted">
+        <div className="text-center py-4">
+          <small className="text-sm text-gray-500">
             All data loaded. Showing {filteredData.length} result{filteredData.length !== 1 ? 's' : ''}
           </small>
         </div>
@@ -153,4 +153,3 @@ const Data: React.FC = () => {
 };
 
 export default Data;
-
