@@ -9,9 +9,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-col md:flex-row h-screen">
           <Sidebar />
-          <div className="flex-1 md:ml-48 lg:ml-56">
+          <div className="flex-1 md:ml-48 lg:ml-56 overflow-hidden">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/data" element={<Data />} />

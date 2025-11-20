@@ -15,6 +15,10 @@ export interface SearchBarProps {
 export interface PostsTableProps {
   data: Post[];
   searchTerm: string;
+  onLoadMore?: () => void;
+  hasMoreData?: boolean;
+  loadingMore?: boolean;
+  loading?: boolean;
 }
 
 export interface LoadingIndicatorProps {
