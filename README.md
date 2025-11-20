@@ -1,4 +1,6 @@
 # Dashboard Application
+Deployed-
+https://snig-dashboard.netlify.app/
 
 A modern, responsive dashboard application built with React and TypeScript. This application features a sidebar navigation, data table with infinite scroll, search functionality, and API integration.
 
