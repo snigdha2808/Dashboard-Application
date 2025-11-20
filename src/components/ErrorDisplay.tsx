@@ -1,6 +1,7 @@
 import React from 'react';
+import { ErrorDisplayProps } from '../types';
 
-const ErrorDisplay = React.memo(({ error }) => {
+const ErrorDisplay: React.FC<ErrorDisplayProps> = React.memo(({ error }) => {
   return (
     <div className="container-fluid p-4">
       <div className="alert alert-danger" role="alert">

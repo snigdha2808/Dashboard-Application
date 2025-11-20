@@ -1,6 +1,7 @@
 import React from 'react';
+import { SearchBarProps } from '../types';
 
-const SearchBar = React.memo(({ searchTerm, onSearchChange, totalResults, totalLoaded }) => {
+const SearchBar: React.FC<SearchBarProps> = React.memo(({ searchTerm, onSearchChange, totalResults, totalLoaded }) => {
   return (
     <div className="mb-3">
       <input

@@ -1,6 +1,7 @@
 import React from 'react';
+import { PostsTableProps } from '../types';
 
-const PostsTable = React.memo(({ data, searchTerm }) => {
+const PostsTable: React.FC<PostsTableProps> = React.memo(({ data, searchTerm }) => {
   return (
     <div className="table-responsive">
       <table className="table table-striped table-hover">
@@ -24,7 +25,7 @@ const PostsTable = React.memo(({ data, searchTerm }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="4" className="text-center">
+              <td colSpan={4} className="text-center">
                 {searchTerm ? (
                   'No posts found matching your search criteria.'
                 ) : (

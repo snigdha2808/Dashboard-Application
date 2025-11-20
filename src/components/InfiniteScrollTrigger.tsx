@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { InfiniteScrollTriggerProps } from '../types';
 
-const InfiniteScrollTrigger = React.memo(({ onLoadMore, hasMoreData, loadingMore, loading }) => {
-  const observerTarget = useRef(null);
+const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = React.memo(({ onLoadMore, hasMoreData, loadingMore, loading }) => {
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
