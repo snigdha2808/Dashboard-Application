@@ -31,16 +31,16 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = React.memo((
   }
 
   return (
-    <div ref={observerTarget} className="text-center py-4">
+    <div ref={observerTarget} className="text-center py-6">
       {loadingMore ? (
-        <div className="d-flex justify-content-center align-items-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading more...</span>
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" role="status">
+            <span className="sr-only">Loading more...</span>
           </div>
-          <span className="ms-3">Fetching more data from API...</span>
+          <span className="ml-3 text-gray-600">Fetching more data from API...</span>
         </div>
       ) : (
-        <small className="text-muted">Scroll down to load more data</small>
+        <small className="text-sm text-gray-500">Scroll down to load more data</small>
       )}
     </div>
   );
@@ -49,4 +49,3 @@ const InfiniteScrollTrigger: React.FC<InfiniteScrollTriggerProps> = React.memo((
 InfiniteScrollTrigger.displayName = 'InfiniteScrollTrigger';
 
 export default InfiniteScrollTrigger;
-

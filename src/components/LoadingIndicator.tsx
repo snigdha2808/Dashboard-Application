@@ -3,12 +3,12 @@ import { LoadingIndicatorProps } from '../types';
 
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = React.memo(({ message = 'Loading data...' }) => {
   return (
-    <div className="container-fluid p-4">
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+    <div className="w-full p-6">
+      <div className="flex justify-center items-center" style={{ minHeight: '400px' }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" role="status">
+          <span className="sr-only">Loading...</span>
         </div>
-        <span className="ms-3">{message}</span>
+        <span className="ml-3 text-gray-600">{message}</span>
       </div>
     </div>
   );
@@ -17,4 +17,3 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = React.memo(({ message 
 LoadingIndicator.displayName = 'LoadingIndicator';
 
 export default LoadingIndicator;
-
